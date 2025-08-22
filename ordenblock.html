@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Trading Avanzado - Block Order, Parabolic SAR, Ichimoku y EMA</title>
+    <style>
+        :root {
+            --primary: #00f7ff;
+            --secondary: #0066ff;
+            --dark: #0a0a1a;
+            --light: #e0e0ff;
+            --accent: #ff00aa;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 30px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(to right, #ffffff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .strategy-card {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--secondary);
+            cursor: pointer;
+        }
+        
+        .strategy-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 150, 255, 0.3);
+            background: rgba(30, 30, 60, 0.8);
+        }
+        
+        .strategy-card h3 {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+        
+        .strategy-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--primary);
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .benefits-list {
+            padding-left: 20px;
+        }
+        
+        .benefits-list li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .benefits-list li:before {
+            content: "✓";
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 30, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        
+        .modal-content {
+            background: var(--dark);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: var(--light);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent);
+        }
+        
+        .modal-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .modal-images img {
+            width: 100%;
+            border-radius: 10px;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            background: #121230;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(10, 10, 30, 0.8);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        @media (max-width: 768px) {
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-images {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>OXXO-MAX-TRADING</h1>
+            <p class="subtitle">Combina Block Orders, Parabolic SAR, Ichimoku y EMA para una estrategia profesional</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section>
+            <h2>Estrategias Técnicas Avanzadas</h2>
+            <p>Este sistema integra cuatro herramientas técnicas poderosas para crear una estrategia de trading completa. Haz clic en cada componente para aprender en detalle cómo funciona y cómo integrarlo en tu sistema.</p>
+            
+            <div class="strategy-grid">
+                <!-- Block Order -->
+                <div class="strategy-card" onclick="openModal('block')">
+                    <h3>Block Orders</h3>
+                    <img src="https://dotnettutorials.net/wp-content/uploads/2023/02/word-image-35367-4-1536x868.png" alt="Block Orders">
+                    <p>Órdenes de bloque diseñadas para ejecutar grandes volúmenes con mínimo impacto en el mercado.</p>
+                    <ul class="benefits-list">
+                        <li>Ejecución discreta de grandes órdenes</li>
+                        <li>Minimiza el impacto en el mercado</li>
+                        <li>Control avanzado de la ejecución</li>
+                    </ul>
+                </div>
+                
+                <!-- Parabolic SAR -->
+                <div class="strategy-card" onclick="openModal('sar')">
+                    <h3>Parabolic SAR</h3>
+                    <img src="https://bpcdn.co/images/2015/03/05150021/parabolic-sar-example.png" alt="Parabolic SAR">
+                    <p>Indicador de seguimiento de tendencia que proporciona puntos de stop loss dinámicos.</p>
+                    <ul class="benefits-list">
+                        <li>Identifica reversiones de tendencia</li>
+                        <li>Proporciona stops dinámicos</li>
+                        <li>Excelente para mercados con tendencia</li>
+                    </ul>
+                </div>
+                
+                <!-- Ichimoku -->
+                <div class="strategy-card" onclick="openModal('ichimoku')">
+                    <h3>Ichimoku Kinko Hyo</h3>
+                    <img src="https://www.tecnicasdetrading.com/wp-content/uploads/2011/05/partes-indicador-ichimoku-kynko-hyo.png.webp" alt="Ichimoku">
+                    <p>Sistema completo de trading que proporciona soportes, resistencias, momentum y dirección de tendencia.</p>
+                    <ul class="benefits-list">
+                        <li>Sistema de trading completo</li>
+                        <li>Proporciona múltiples señales</li>
+                        <li>Efectivo en múltiples timeframe</li>
+                    </ul>
+                </div>
+                
+                <!-- EMA -->
+                <div class="strategy-card" onclick="openModal('ema')">
+                    <h3>Media Móvil Exponencial (EMA)</h3>
+                    <img src="https://dcapitalinvestors.com/wp-content/uploads/2016/04/medias-moviles1.jpg" alt="Media Móvil Exponencial">
+                    <p>Indicador de tendencia que da más peso a los precios recientes para una respuesta más rápida.</p>
+                    <ul class="benefits-list">
+                        <li>Suaviza el ruido del mercado</li>
+                        <li>Identifica la dirección de la tendencia</li>
+                        <li>Puede actuar como soporte/resistencia</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Integración del Sistema Completo</h2>
+            <div class="chart-container">
+                <img src="https://www.tradingview.com/x/uLvjXWlJ/" alt="Sistema de Trading Integrado">
+            </div>
+            <p>La combinación de estos cuatro elementos crea un sistema de trading robusto donde el Ichimoku proporciona el contexto general del mercado, el Parabolic SAR ofrece puntos de entrada y salida precisos, las EMAs confirman la dirección de la tendencia y los Block Orders permiten una ejecución óptima de las operaciones.</p>
+        </section>
+    </div>
+    
+    <!-- Modal Block Orders -->
+    <div id="block-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('block')">&times;</span>
+            <h2>Block Orders</h2>
+            <p>Las Block Orders son órdenes de compra o venta de grandes cantidades de un activo que se ejecutan de manera discreta para minimizar el impacto en el mercado. Estas órdenes suelen dividirse en partes más pequeñas y ejecutarse a lo largo del tiempo.</p>
+            
+            <div class="modal-images">
+                <img src="https://lh7-qw.googleusercontent.com/docsz/AD_4nXedyxx9oWSxOGEGP3ZRa-l1SgIexdcFSOB9wDeRQwOBRyStZ8jHsTWzu4xROUQBtakD78jVqND7ggb3dBKjtqYhdchhsOsmxvax28CKCOiXTo4rQ45KLpDaBYqP7INg6Ota9u3aNw?key=uivvFn-FZrjBKO2NfAHdXQ" alt="Ejemplo Block Order 1">
+                <img src="https://www.novatostradingclub.com/wp-content/uploads/2024/06/order-block-trading-ejemplo-4.webp" alt="Ejemplo Block Order 2">
+            </div>
+            
+            <h3>Beneficios Clave:</h3>
+            <ul class="benefits-list">
+                <li><strong>Ejecución discreta:</strong> Permite mover grandes volúmenes sin alertar al mercado.</li>
+                <li><strong>Minimiza el slippage:</strong> Al dividir la orden en partes, se reduce el impacto en el precio.</li>
+                <li><strong>Control avanzado:</strong> Ofrece múltiples opciones de ejecución (VWAP, TWAP, Iceberg, etc.).</li>
+                <li><strong>Eficiencia de costos:</strong> Reduce los costos de transacción al obtener mejores precios promedio.</li>
+            </ul>
+            
+            <h3>Cómo integrarlo en tu estrategia:</h3>
+            <p>Cuando tu análisis con Ichimoku, Parabolic SAR y EMA indique una oportunidad de trading, utiliza Block Orders para:</p>
+            <ol>
+                <li>Entrar en la posición de manera escalonada</li>
+                <li>Distribuir tu riesgo</li>
+                <li>Salir de la operación sin afectar significativamente el mercado</li>
+            </ol>
+            
+            <div class="chart-container">
+                <img src="https://www.tradingview.com/x/uLvjXWlJ/" alt="Block Orders en acción">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Parabolic SAR -->
+    <div id="sar-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('sar')">&times;</span>
+            <h2>Parabolic SAR (Stop and Reverse)</h2>
+            <p>El Parabolic SAR es un indicador técnico desarrollado por J. Welles Wilder que se utiliza para determinar la dirección del precio y posibles puntos de reversión. Aparece como una serie de puntos colocados encima o debajo del precio.</p>
+            
+            <div class="modal-images">
+                <img src="https://www.forex.academy/wp-content/uploads/2020/06/parabolic-sar-indicator-explained-1024x576.jpg" alt="Ejemplo Parabolic SAR 1">
+                <img src="https://www.ifcm.co.uk/upload/medialibrary/8b7/8b7b3b0c9f5e0a3f1c4e3a3f1c4e3a3.png" alt="Ejemplo Parabolic SAR 2">
+            </div>
+            
+            <h3>Beneficios Clave:</h3>
+            <ul class="benefits-list">
+                <li><strong>Identifica tendencias:</strong> Los puntos debajo del precio indican tendencia alcista, arriba indican tendencia bajista.</li>
+                <li><strong>Stop loss dinámico:</strong> Proporciona un trailing stop que se ajusta automáticamente.</li>
+                <li><strong>Señales claras:</strong> La inversión de los puntos indica posible cambio de tendencia.</li>
+                <li><strong>Fácil interpretación:</strong> Visualmente intuitivo y sencillo de aplicar.</li>
+            </ul>
+            
+            <h3>Cómo usarlo con otras herramientas:</h3>
+            <p>Combina el Parabolic SAR con:</p>
+            <ol>
+                <li><strong>Ichimoku:</strong> Usa el SAR cuando el precio esté por encima/abajo de la nube para confirmar tendencias fuertes.</li>
+                <li><strong>EMA:</strong> Filtra señales del SAR cuando coincida con la dirección de las EMAs.</li>
+                <li><strong>Block Orders:</strong> Usa los puntos del SAR como niveles para colocar tus órdenes de bloque.</li>
+            </ol>
+            
+            <div class="chart-container">
+                <img src="https://www.tradingview.com/x/uLvjXWlJ/" alt="Parabolic SAR en acción">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Ichimoku -->
+    <div id="ichimoku-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('ichimoku')">&times;</span>
+            <h2>Ichimoku Kinko Hyo</h2>
+            <p>El Ichimoku Kinko Hyo, o "Gráfico de Equilibrio a Simple Vista", es un sistema completo de trading que proporciona información sobre soportes/resistencias, dirección de la tendencia, momentum y señales de trading.</p>
+            
+            <div class="modal-images">
+                <img src="https://www.ig.com/es/glosario-trading/que-es-ichimoku/images/ichimoku-chart.png" alt="Ejemplo Ichimoku 1">
+                <img src="https://www.forex.academy/wp-content/uploads/2020/06/ichimoku-cloud-indicator-explained-1024x576.jpg" alt="Ejemplo Ichimoku 2">
+            </div>
+            
+            <h3>Componentes Principales:</h3>
+            <ul class="benefits-list">
+                <li><strong>Tenkan-sen (Línea de Conversión):</strong> Promedio de los máximos y mínimos de los últimos 9 periodos.</li>
+                <li><strong>Kijun-sen (Línea Base):</strong> Promedio de los máximos y mínimos de los últimos 26 periodos.</li>
+                <li><strong>Senkou Span A (Nube):</strong> Promedio de Tenkan y Kijun, proyectada 26 periodos adelante.</li>
+                <li><strong>Senkou Span B (Nube):</strong> Promedio de los máximos y mínimos de los últimos 52 periodos, proyectado 26 adelante.</li>
+                <li><strong>Chikou Span (Línea Retrasada):</strong> Precio de cierre proyectado 26 periodos atrás.</li>
+            </ul>
+            
+            <h3>Beneficios en el Trading:</h3>
+            <ol>
+                <li><strong>Análisis completo:</strong> Proporciona múltiples señales en un solo vistazo.</li>
+                <li><strong>Identificación de tendencias:</strong> La posición del precio respecto a la nube indica la tendencia.</li>
+                <li><strong>Soportes y resistencias:</strong> La nube actúa como zona dinámica de soporte/resistencia.</li>
+                <li><strong>Señales de trading:</strong> Cruces entre Tenkan y Kijun, precio vs nube, etc.</li>
+            </ol>
+            
+            <div class="chart-container">
+                <img src="https://www.tradingview.com/x/uLvjXWlJ/" alt="Ichimoku en acción">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal EMA -->
+    <div id="ema-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('ema')">&times;</span>
+            <h2>Media Móvil Exponencial (EMA)</h2>
+            <p>La Media Móvil Exponencial es un tipo de media móvil que da más peso a los precios más recientes, lo que la hace más sensible a los nuevos datos que una Media Móvil Simple (SMA).</p>
+            
+            <div class="modal-images">
+                <img src="https://www.forex.academy/wp-content/uploads/2020/06/exponential-moving-average-1024x576.jpg" alt="Ejemplo EMA 1">
+                <img src="https://www.investopedia.com/thmb/1PnoQ-7uY6Y3i5X8z7Q3Q9J9Z3Q=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/block-trade-5bfd31a346e0fb0058eec27a" alt="Ejemplo EMA 2">
+            </div>
+            
+            <h3>Beneficios Clave:</h3>
+            <ul class="benefits-list">
+                <li><strong>Respuesta rápida:</strong> Reacciona más rápido que una SMA a los cambios de precio.</li>
+                <li><strong>Filtro de tendencia:</strong> El precio sobre la EMA indica tendencia alcista, debajo bajista.</li>
+                <li><strong>Soporte/resistencia dinámico:</strong> Puede actuar como nivel de soporte en tendencias alcistas o resistencia en bajistas.</li>
+                <li><strong>Señales de cruce:</strong> El cruce de EMAs de diferentes periodos puede generar señales.</li>
+            </ul>
+            
+            <h3>Configuraciones Recomendadas:</h3>
+            <p>Para este sistema avanzado, recomendamos:</p>
+            <ol>
+                <li><strong>EMA Rápida:</strong> 9 periodos (coincide con Tenkan del Ichimoku)</li>
+                <li><strong>EMA Media:</strong> 26 periodos (coincide con Kijun del Ichimoku)</li>
+                <li><strong>EMA Lenta:</strong> 52 periodos (para tendencia principal)</li>
+            </ol>
+            
+            <h3>Integración con el Sistema:</h3>
+            <p>Usa las EMAs para:</p>
+            <ul>
+                <li>Confirmar la dirección de la tendencia identificada por el Ichimoku</li>
+                <li>Filtrar señales del Parabolic SAR (solo operar en la dirección de la EMA principal)</li>
+                <li>Determinar niveles óptimos para colocar Block Orders</li>
+            </ul>
+            
+            <div class="chart-container">
+                <img src="https://www.tradingview.com/x/uLvjXWlJ/" alt="EMA en acción">
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <h3>Sistema de Trading Avanzado</h3>
+            <p>Combina lo mejor del análisis técnico con ejecución profesional para trading institucional</p>
+            <p>© 2023 Advanced Trading Systems. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    
+    <script>
+        function openModal(strategy) {
+            document.getElementById(`${strategy}-modal`).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(strategy) {
+            document.getElementById(`${strategy}-modal`).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>

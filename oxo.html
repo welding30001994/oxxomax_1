@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXOMAXTRADING - Fibonacci</title>
+    <style>
+        :root {
+            --primary: #00f7ff;
+            --secondary: #0077ff;
+            --dark: #0a0a1a;
+            --darker: #050510;
+            --light: #e0e0ff;
+            --accent: #ff00aa;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 247, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 170, 0.05) 0%, transparent 20%);
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px var(--primary);
+            font-size: 0.9rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: linear-gradient(145deg, rgba(10, 10, 30, 0.8), rgba(5, 5, 20, 0.9));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 247, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 247, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 1px solid rgba(0, 247, 255, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--secondary);
+            border-radius: 6px;
+            color: var(--light);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(0, 247, 255, 0.5);
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--darker);
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 247, 255, 0.4);
+        }
+        
+        .results {
+            margin-top: 20px;
+        }
+        
+        .fib-levels {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .fib-level {
+            background: rgba(0, 119, 255, 0.1);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .fib-level:hover {
+            transform: translateY(-3px);
+            background: rgba(0, 119, 255, 0.2);
+            box-shadow: 0 3px 10px rgba(0, 247, 255, 0.2);
+        }
+        
+        .fib-percent {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+        
+        .fib-value {
+            font-size: 0.95rem;
+            color: var(--light);
+        }
+        
+        .trading-recommendations {
+            margin-top: 20px;
+        }
+        
+        .recommendation {
+            background: rgba(255, 0, 170, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .recommendation h4 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        
+        .chart-placeholder {
+            height: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--secondary);
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--secondary);
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(0, 247, 255, 0.1);
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+        
+        @media (min-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .logo-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .fib-levels {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            
+            button {
+                width: auto;
+                margin-top: 0;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .panel {
+                padding: 25px;
+            }
+            
+            .fib-levels {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            
+            .chart-placeholder {
+                height: 300px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .panel {
+                padding: 15px;
+            }
+            
+            .fib-level {
+                padding: 10px;
+            }
+            
+            .fib-percent {
+                font-size: 1rem;
+            }
+            
+            .fib-value {
+                font-size: 0.9rem;
+            }
+        }
+        
+        input[type="number"] {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        #chart-placeholder div {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">F</div>
+                <h1>OXOMAXTRADING</h1>
+            </div>
+        </header>
+        
+        <div class="grid">
+            <div class="panel">
+                <h2>Calculadora </h2>
+                <div class="form-group">
+                    <label for="trend-direction">Tendencia</label>
+                    <select id="trend-direction">
+                        <option value="uptrend">Alcista</option>
+                        <option value="downtrend">Bajista</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="point-a">Máximo</label>
+                    <input type="number" id="point-a" step="0.0001" placeholder="Máximo" inputmode="decimal">
+                </div>
+                
+                <div class="form-group">
+                    <label for="point-b">Mínimo</label>
+                    <input type="number" id="point-b" step="0.0001" placeholder="Mínimo" inputmode="decimal">
+                </div>
+                
+                <button id="calculate-btn">Calcular</button>
+                
+                <div class="results" id="results" style="display: none;">
+                    <h2>Niveles OXOMAXTRADING</h2>
+                    <div class="fib-levels" id="fib-levels">
+                        <!-- Los niveles Fibonacci se generarán aquí -->
+                    </div>
+                    
+                    <div class="trading-recommendations">
+                        <h2>Recomendaciones</h2>
+                        <div class="recommendation">
+                            <h4>Entradas Potenciales</h4>
+                            <p id="entry-points">Se calcularán después de ingresar los puntos.</p>
+                        </div>
+                        <div class="recommendation">
+                            <h4>Objetivos de Beneficio</h4>
+                            <p id="profit-targets">Se calcularán después de ingresar los puntos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>OXOMAXTRADING</h2>
+                <div class="chart-placeholder" id="chart-placeholder">
+                    Gráfico OXOMAXTRADING aparecerá aquí
+                </div>
+                
+                <div class="trading-recommendations">
+                    <h2>Explicación de Niveles</h2>
+                    <div class="recommendation">
+                        <h4>Clásico </h4>
+                        <p>Nivel de retroceso inicial, usado para confirmar la fuerza de la tendencia.</p>
+                    </div>
+                    <div class="recommendation">
+                        <h4>Neutral </h4>
+                        <p>Punto medio psicológico importante para posibles entradas.</p>
+                    </div>
+                    <div class="recommendation">
+                        <h4>Dorado </h4>
+                        <p>El nivel más importante, donde las reversiones ocurren frecuentemente.</p>
+                    </div>
+                    <div class="recommendation">
+                        <h4>Objetivo </h4>
+                        <p>Punto de toma de beneficios principal en la dirección de la tendencia.</p>
+                    </div>
+                    <div class="recommendation">
+                        <h4>Extensión </h4>
+                        <p>Objetivo ambicioso para tendencias muy fuertes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Herramienta OXOMAXTRADING © 2010 | Para uso educativo</p>
+    </footer>
+
+    <script>
+        document.getElementById('calculate-btn').addEventListener('click', calculateFibonacci);
+        
+        function calculateFibonacci() {
+            const pointA = parseFloat(document.getElementById('point-a').value);
+            const pointB = parseFloat(document.getElementById('point-b').value);
+            const trendDirection = document.getElementById('trend-direction').value;
+            
+            if (isNaN(pointA) || isNaN(pointB)) {
+                alert('Por favor ingrese valores válidos para ambos puntos.');
+                return;
+            }
+            
+            let low, high;
+            if (trendDirection === 'uptrend') {
+                low = Math.min(pointA, pointB);
+                high = Math.max(pointA, pointB);
+            } else {
+                high = Math.max(pointA, pointB);
+                low = Math.min(pointA, pointB);
+            }
+            
+            const difference = high - low;
+            
+            const fibLevels = {
+                'STOP LOSS': trendDirection === 'uptrend' ? low : high,
+                'CLASICO': trendDirection === 'uptrend' ? high - difference * 0.382 : low + difference * 0.382,
+                'NEUTRAL': trendDirection === 'uptrend' ? high - difference * 0.5 : low + difference * 0.5,
+                'DORADO': trendDirection === 'uptrend' ? high - difference * 0.618 : low + difference * 0.618,
+                'OBJETIVO': trendDirection === 'uptrend' ? high : low,
+                'EXTENSION': trendDirection === 'uptrend' ? high + difference * 0.618 : low - difference * 0.618
+            };
+            
+            displayResults(fibLevels, trendDirection);
+            updateChartPlaceholder(low, high, fibLevels);
+        }
+        
+        function displayResults(fibLevels, trendDirection) {
+            const fibLevelsContainer = document.getElementById('fib-levels');
+            fibLevelsContainer.innerHTML = '';
+            
+            for (const [level, value] of Object.entries(fibLevels)) {
+                const fibLevelElement = document.createElement('div');
+                fibLevelElement.className = 'fib-level';
+                
+                const fibPercentElement = document.createElement('div');
+                fibPercentElement.className = 'fib-percent';
+                fibPercentElement.textContent = level;
+                
+                const fibValueElement = document.createElement('div');
+                fibValueElement.className = 'fib-value';
+                fibValueElement.textContent = value.toFixed(4);
+                
+                fibLevelElement.appendChild(fibPercentElement);
+                fibLevelElement.appendChild(fibValueElement);
+                fibLevelsContainer.appendChild(fibLevelElement);
+            }
+            
+            // Actualizar recomendaciones
+            const entryPointsElement = document.getElementById('entry-points');
+            const profitTargetsElement = document.getElementById('profit-targets');
+            
+            if (trendDirection === 'uptrend') {
+                entryPointsElement.innerHTML = `
+                    <strong>Compra en:</strong><br>
+                    - CLASICO: ${fibLevels['CLASICO'].toFixed(4)} <br>
+                    - NEUTRAL: ${fibLevels['NEUTRAL'].toFixed(4)} <br>
+                    - DORADO: ${fibLevels['DORADO'].toFixed(4)} 
+                `;
+                
+                profitTargetsElement.innerHTML = `
+                    <strong>Objetivos:</strong><br>
+                    - OBJETIVO: ${fibLevels['OBJETIVO'].toFixed(4)} <br>
+                    - EXTENSION: ${fibLevels['EXTENSION'].toFixed(4)} 
+                `;
+            } else {
+                entryPointsElement.innerHTML = `
+                    <strong>Venta en:</strong><br>
+                    - CLASICO: ${fibLevels['CLASICO'].toFixed(4)} <br>
+                    - NEUTRAL: ${fibLevels['NEUTRAL'].toFixed(4)}<br>
+                    - DORADO: ${fibLevels['DORADO'].toFixed(4)} 
+                `;
+                
+                profitTargetsElement.innerHTML = `
+                    <strong>Objetivos:</strong><br>
+                    - OBJETIVO: ${fibLevels['OBJETIVO'].toFixed(4)} <br>
+                    - EXTENSION: ${fibLevels['EXTENSION'].toFixed(4)} 
+                `;
+            }
+            
+            document.getElementById('results').style.display = 'block';
+            
+            // Desplazarse suavemente a los resultados
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function updateChartPlaceholder(low, high, fibLevels) {
+            const placeholder = document.getElementById('chart-placeholder');
+            placeholder.innerHTML = `
+                <div style="text-align: center; width: 100%;">
+                    <h3 style="color: var(--primary); margin-bottom: 8px; font-size: 1.1rem;">OXOMAXTRADING</h3>
+                    <div style="height: 180px; width: 100%; position: relative; border-left: 1px solid var(--secondary); border-bottom: 1px solid var(--secondary); margin: 0 auto;">
+                        ${Object.entries(fibLevels).map(([level, value]) => {
+                            const position = ((high - value) / (high - low)) * 100;
+                            return `
+                                <div style="position: absolute; left: 0; right: 0; top: ${position}%; border-top: 1px dashed ${level === 'STOP 0.0%' || level === 'OBJETIVO' ? 'var(--accent)' : 'var(--primary)'}; 
+                                    display: flex; justify-content: flex-end; padding-right: 5px; align-items: center;">
+                                    <span style="background: rgba(0,0,0,0.7); padding: 2px 4px; border-radius: 3px; font-size: 0.7rem;">
+                                        ${level}: ${value.toFixed(4)}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <p style="margin-top: 10px; color: var(--secondary); font-size: 0.8rem;"> OXOMAXTRADING</p>
+                </div>
+            `;
+        }
+        
+        // Mejorar la experiencia de entrada en móviles
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('focus', function() {
+                window.scrollTo(0, this.offsetTop - 100);
+            });
+        });
+    </script>
+</body>
+</html>
